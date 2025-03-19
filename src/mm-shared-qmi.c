@@ -946,6 +946,7 @@ load_current_capabilities_get_system_selection_preference_ready (QmiClientNas *c
     LoadCurrentCapabilitiesContext                  *ctx;
     QmiMessageNasGetSystemSelectionPreferenceOutput *output = NULL;
     GError                                          *error = NULL;
+    guint                                           i;
 
     self = g_task_get_source_object (task);
     ctx  = g_task_get_task_data (task);
@@ -965,15 +966,24 @@ load_current_capabilities_get_system_selection_preference_ready (QmiClientNas *c
     } else {
         GArray *acquisition_order_preference_array = NULL;
 
+        mm_obj_warn (self, "HEY! Got system selection preference");
+
+        
         /* SSP is supported, perform feature checks */
         priv->feature_nas_ssp = FEATURE_SUPPORTED;
         if (qmi_message_nas_get_system_selection_preference_output_get_extended_lte_band_preference (output, NULL, NULL, NULL, NULL, NULL))
             priv->feature_nas_ssp_extended_lte_band_preference = FEATURE_SUPPORTED;
+        // TODO: maybe missing 5GNR here
         if (qmi_message_nas_get_system_selection_preference_output_get_acquisition_order_preference (output, &acquisition_order_preference_array, NULL) &&
             acquisition_order_preference_array &&
             acquisition_order_preference_array->len) {
             priv->feature_nas_ssp_acquisition_order_preference = FEATURE_SUPPORTED;
             priv->feature_nas_ssp_acquisition_order_preference_array = g_array_ref (acquisition_order_preference_array);
+            for (i = 0; i < priv->feature_nas_ssp_acquisition_order_preference_array->len; i++) {
+                mm_obj_warn(self, "HEY! Acquisition Order Preference Entry: %u", g_array_index(priv->feature_nas_ssp_acquisition_order_preference_array, guint, i));
+            }
+        } else {
+            mm_obj_warn (self, "HEY! Cannot get acquisition order preference");
         }
 
         qmi_message_nas_get_system_selection_preference_output_get_mode_preference (
@@ -1350,7 +1360,8 @@ set_current_modes_system_selection_preference (GTask *task)
             /* Acquisition order array */
             array = mm_modem_mode_to_qmi_acquisition_order_preference (ctx->allowed,
                                                                        ctx->preferred,
-                                                                       priv->feature_nas_ssp_acquisition_order_preference_array);
+                                                                       priv->feature_nas_ssp_acquisition_order_preference_array,
+                                                                       self);
             g_assert (array);
             qmi_message_nas_set_system_selection_preference_input_set_acquisition_order_preference (input, array, NULL);
             g_array_unref (array);

@@ -1423,6 +1423,8 @@ modem_set_current_modes (MMIfaceModem        *_self,
     MbimDevice              *device;
     g_autoptr(GCancellable)  cancellable = NULL;
 
+    mm_obj_warn (MM_IFACE_MODEM (self), "HEY! Called modem_set_current_modes");
+
     if (!peek_device (self, &device, callback, user_data))
         return;
 

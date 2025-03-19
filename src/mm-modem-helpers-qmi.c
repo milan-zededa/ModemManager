@@ -1244,22 +1244,36 @@ radio_interface_array_add_missing (GArray *array,
 GArray *
 mm_modem_mode_to_qmi_acquisition_order_preference (MMModemMode  allowed,
                                                    MMModemMode  preferred,
-                                                   GArray      *all)
+                                                   GArray       *all,
+                                                   gpointer     log_object)
 {
     GArray               *array;
     QmiNasRadioInterface  preferred_radio = QMI_NAS_RADIO_INTERFACE_UNKNOWN;
     QmiNasRadioInterface  value;
+    guint                 i;
 
     array = g_array_sized_new (FALSE, FALSE, sizeof (QmiNasRadioInterface), all->len);
+    mm_obj_warn (log_object, "HEY! Called mm_modem_mode_to_qmi_acquisition_order_preference");
+
+    // Iterate over all and log entry with mm_obj_warn
+    for (i = 0; i < all->len; i++) {
+       value = g_array_index(all, QmiNasRadioInterface, i);
+       mm_obj_warn(log_object, "HEY! Entry %d in 'all' array: Radio Interface - %d", i, value);
+    }
+
 
 #define PROCESS_ALLOWED_PREFERRED_MODE(MODE,RADIO)                      \
     if ((allowed & MODE) && (radio_interface_array_contains (all, RADIO))) { \
-        if ((preferred == MODE) && (preferred_radio == QMI_NAS_RADIO_INTERFACE_UNKNOWN)) \
+        mm_obj_warn (log_object, "HEY! Mode %d IS allowed and Radio IS included", MODE);  \
+        if ((preferred == MODE) && (preferred_radio == QMI_NAS_RADIO_INTERFACE_UNKNOWN)) { \
+            mm_obj_warn (log_object, "HEY! preferred_radio is %d", RADIO);  \
             preferred_radio = RADIO;                                    \
-        else {                                                          \
+        } else {                                                          \
             value = RADIO;                                              \
             g_array_append_val (array, value);                          \
         }                                                               \
+    } else { \
+        mm_obj_warn (log_object, "HEY! Mode %d is NOT allowed or Radio is not included", MODE);  \
     }
 
     PROCESS_ALLOWED_PREFERRED_MODE (MM_MODEM_MODE_5G, QMI_NAS_RADIO_INTERFACE_5GNR);
@@ -1278,6 +1292,15 @@ mm_modem_mode_to_qmi_acquisition_order_preference (MMModemMode  allowed,
      * same list of QmiNasRadioInterface values, just with a different order. */
     radio_interface_array_add_missing (array, all);
     g_assert_cmpuint (array->len, ==, all->len);
+    
+
+    // Iterate over 'array' and log each entry with mm_obj_warn
+    for (i = 0; i < array->len; i++) {
+        value = g_array_index(array, QmiNasRadioInterface, i);
+        mm_obj_warn(log_object, "HEY! Entry %d in 'array': Radio Interface - %d", i, value);
+    }
+
+    mm_obj_warn (log_object, "HEY! mm_modem_mode_to_qmi_acquisition_order_preference is DONE");
 
     return array;
 }
