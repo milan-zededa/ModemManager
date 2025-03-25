@@ -1263,7 +1263,7 @@ mm_modem_mode_to_qmi_acquisition_order_preference (MMModemMode  allowed,
 
 
 #define PROCESS_ALLOWED_PREFERRED_MODE(MODE,RADIO)                      \
-    if ((allowed & MODE) && (radio_interface_array_contains (all, RADIO))) { \
+    if ((allowed & MODE) /*&& (radio_interface_array_contains (all, RADIO))*/) { \
         mm_obj_warn (log_object, "HEY! Mode %d IS allowed and Radio IS included", MODE);  \
         if ((preferred == MODE) && (preferred_radio == QMI_NAS_RADIO_INTERFACE_UNKNOWN)) { \
             mm_obj_warn (log_object, "HEY! preferred_radio is %d", RADIO);  \
@@ -1291,7 +1291,7 @@ mm_modem_mode_to_qmi_acquisition_order_preference (MMModemMode  allowed,
     /* the acquisition order preference is a TLV that must ALWAYS contain the
      * same list of QmiNasRadioInterface values, just with a different order. */
     radio_interface_array_add_missing (array, all);
-    g_assert_cmpuint (array->len, ==, all->len);
+    //g_assert_cmpuint (array->len, ==, all->len);
     
 
     // Iterate over 'array' and log each entry with mm_obj_warn

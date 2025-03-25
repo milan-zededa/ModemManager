@@ -973,7 +973,7 @@ load_current_capabilities_get_system_selection_preference_ready (QmiClientNas *c
         priv->feature_nas_ssp = FEATURE_SUPPORTED;
         if (qmi_message_nas_get_system_selection_preference_output_get_extended_lte_band_preference (output, NULL, NULL, NULL, NULL, NULL))
             priv->feature_nas_ssp_extended_lte_band_preference = FEATURE_SUPPORTED;
-        // TODO: maybe missing 5GNR here
+        // TODO: maybe missing 5GNR here - yes
         if (qmi_message_nas_get_system_selection_preference_output_get_acquisition_order_preference (output, &acquisition_order_preference_array, NULL) &&
             acquisition_order_preference_array &&
             acquisition_order_preference_array->len) {
